@@ -1,12 +1,17 @@
 package com.tac.taskmanagement.service;
 
+import com.tac.taskmanagement.dto.Client;
+import com.tac.taskmanagement.dto.Project;
 import com.tac.taskmanagement.dto.Task;
+import com.tac.taskmanagement.dto.User;
+import com.tac.taskmanagement.entity.ClientEntity;
+import com.tac.taskmanagement.entity.ProjectEntity;
 import com.tac.taskmanagement.entity.TaskEntity;
+import com.tac.taskmanagement.entity.UserEntity;
 import com.tac.taskmanagement.repository.TaskRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.TextStyle;
@@ -15,6 +20,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class TaskService {
@@ -41,10 +47,50 @@ public class TaskService {
         return taskRepository.save(entity);
     }
 
-    public List<TaskEntity> getAllData() {
-        return taskRepository.findAll();
-    }
+    public List<Task> getAllData() {
+        List<TaskEntity> taskEntities = taskRepository.findAll();
+        return taskEntities.stream().map(taskEntity -> {
+            Task taskDto = new Task();
+            taskDto.setId(taskEntity.getId());
+            taskDto.setName(taskEntity.getName());
+            taskDto.setStatus(taskEntity.getStatus());
+            taskDto.setTask(taskEntity.getTask());
+            taskDto.setLogHours(taskEntity.getLogHours());
 
+            // Convert ProjectEntity to Project DTO
+            ProjectEntity projectEntity = taskEntity.getProject();
+            if (projectEntity != null) {
+                Project projectDto = new Project();
+                projectDto.setId(projectEntity.getId());
+                projectDto.setName(projectEntity.getName());
+                projectDto.setDescription(projectEntity.getDescription());
+                projectDto.setStatus(projectEntity.getStatus());
+
+                // Convert ClientEntity to Client DTO
+                ClientEntity clientEntity = projectEntity.getClient();
+                if (clientEntity != null) {
+                    Client clientDto = new Client();
+                    clientDto.setId(clientEntity.getId());
+                    clientDto.setName(clientEntity.getName());
+                    taskDto.setClient(clientDto);
+                }
+
+                taskDto.setProject(projectDto);
+            }
+
+            // Convert UserEntity to User DTO
+            UserEntity userEntity = taskEntity.getAssignedUser();
+            if (userEntity != null) {
+                User userDto = new User();
+                userDto.setId(userEntity.getId());
+                userDto.setName(userEntity.getName());
+                userDto.setEmail(userEntity.getEmail());
+                taskDto.setAssignedUser(userDto);
+            }
+
+            return taskDto;
+        }).collect(Collectors.toList());
+    }
     public TaskEntity getDataById(Long id) {
         return taskRepository.findById(id).orElse(null);
     }

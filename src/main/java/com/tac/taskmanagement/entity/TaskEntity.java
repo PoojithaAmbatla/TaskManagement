@@ -1,5 +1,7 @@
 package com.tac.taskmanagement.entity;
 
+import com.tac.taskmanagement.dto.Project;
+import com.tac.taskmanagement.dto.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -39,6 +41,15 @@ public class TaskEntity {
 
     @Column(name = "log_hours")
     private String logHours;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private UserEntity assignedUser;
+
+    @ManyToOne
+    @JoinColumn(name = "project_id")
+    private ProjectEntity project;
+
 
 }
 

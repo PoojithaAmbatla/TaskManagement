@@ -28,8 +28,8 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TaskEntity>> getAllData() {
-        List<TaskEntity> allData = taskService.getAllData();
+    public ResponseEntity<List<Task>> getAllData() {
+        List<Task> allData = taskService.getAllData();
         return ResponseEntity.ok(allData);
     }
 
@@ -70,7 +70,7 @@ public class TaskController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteData(@PathVariable("id") Long id) {
+    public ResponseEntity<Void> deleteData(@PathVariable Long id) {
         try {
             taskService.deleteData(id);
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -78,6 +78,5 @@ public class TaskController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-
 }
 
